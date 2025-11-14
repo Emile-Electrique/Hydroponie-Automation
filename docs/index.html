@@ -4,37 +4,146 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Hydroponie Automation</title>
+
+  <!-- model-viewer script -->
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
   <style>
-    html,body{height:100%}
-    /* darker sky-blue → white */
-    body{
-      margin:0;
-      background: linear-gradient(#4e8ffb 0%, #8fb6ff 45%, #ffffff 100%);
+    html, body {
+      height: 100%;
     }
-    model-viewer{
-      width:100%; height:100%;
-      display:block; background:transparent; /* let gradient show through */
+
+    body {
+      margin: 0;
+      background: linear-gradient(#4e8ffb 0%, #8fb6ff 45%, #ffffff 100%);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    /* Main layout: model on the left, sleeve on the right */
+    .layout {
+      display: flex;
+      height: 100%;
+      width: 100%;
+    }
+
+    model-viewer {
+      flex: 1;
+      display: block;
+      background: transparent; /* let gradient show through */
+    }
+
+    .materials-panel {
+      width: 260px;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 16px 18px;
+      box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .materials-panel h2 {
+      margin: 0 0 4px 0;
+      font-size: 1.1rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .materials-panel small {
+      color: #555;
+    }
+
+    .materials-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .materials-table th,
+    .materials-table td {
+      padding: 4px 6px;
+      border-bottom: 1px solid #ddd;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .materials-table th:first-child,
+    .materials-table td:first-child {
+      text-align: left;
+    }
+
+    .materials-table th {
+      font-weight: 600;
+    }
+
+    /* Optional: stack on small screens */
+    @media (max-width: 700px) {
+      .layout {
+        flex-direction: column;
+      }
+      .materials-panel {
+        width: 100%;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+      }
     }
   </style>
 </head>
 <body>
-  <model-viewer
-    src="assets/models/assembly5.glb"
-    ios-src="assets/models/assembly-v4?v=6"
-    camera-controls
-    bounds="tight"
-    camera-target="auto"
-    /* front-ish view + farther radius so it starts unzoomed */
-    camera-orbit="0deg 90deg 160%"
-    field-of-view="24deg"
-    min-field-of-view="18deg"
-    max-field-of-view="50deg"
-    environment-image="neutral"
-    exposure="0.8"
-    shadow-intensity="0.5"
-    shadow-softness="0.9"
-    touch-action="pan-y">
-  </model-viewer>
+  <div class="layout">
+    <!-- 3D model viewer -->
+    <model-viewer
+      src="./assets/models/assembly5.glb"
+      camera-controls
+      bounds="tight"
+      camera-target="auto"
+      camera-orbit="0deg 90deg 160%"
+      field-of-view="24deg"
+      min-field-of-view="18deg"
+      max-field-of-view="50deg"
+      environment-image="neutral"
+      exposure="0.8"
+      shadow-intensity="0.5"
+      shadow-softness="0.9"
+      touch-action="pan-y">
+    </model-viewer>
+
+    <!-- Right-side sleeve -->
+    <aside class="materials-panel">
+      <h2>Materials</h2>
+      <small>Liste des longueurs de profilés</small>
+      <table class="materials-table">
+        <thead>
+          <tr>
+            <th>Quantité</th>
+            <th>Mesure</th>
+            <th>Unité</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>4</td>
+            <td>2000</td>
+            <td>mm</td>
+          </tr>
+          <tr>
+            <td>16</td>
+            <td>1280</td>
+            <td>mm</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>1200</td>
+            <td>mm</td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td>630</td>
+            <td>mm</td>
+          </tr>
+        </tbody>
+      </table>
+    </aside>
+  </div>
 </body>
 </html>
