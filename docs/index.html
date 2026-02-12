@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -9,142 +9,279 @@
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
   <style>
-    html, body {
-      height: 100%;
-    }
+    html, body { height: 100%; }
 
     body {
       margin: 0;
       background: linear-gradient(#4e8ffb 0%, #8fb6ff 45%, #ffffff 100%);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      position: relative; /* so absolute children can anchor to viewport */
       overflow: hidden;
     }
+
+    /* Main layout: content + right toolbar */
+    .app {
+      height: 100%;
+      display: flex;
+    }
+
+    .main {
+      flex: 1;
+      position: relative;
+      min-width: 0;
+    }
+
+    /* Full-viewport content areas */
+    .view {
+      position: absolute;
+      inset: 0;
+      display: none; /* hidden by default */
+    }
+    .view.active { display: block; }
 
     model-viewer {
       width: 100%;
       height: 100%;
       display: block;
-      background: transparent; /* let gradient show through */
+      background: transparent;
     }
 
-    /* Right-side overlay sleeve */
-    .materials-panel {
-      position: fixed;  /* sits on top, doesn't affect layout/centering */
-      top: 0;
-      right: 0;
+    /* Right toolbar */
+    .toolbar {
+      width: 280px;
       height: 100%;
-      width: 260px;
-
       background: rgba(255, 255, 255, 0.94);
-      padding: 16px 18px;
       box-shadow: -4px 0 12px rgba(0, 0, 0, 0.25);
       box-sizing: border-box;
-
+      padding: 14px;
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
-    .materials-panel h2 {
-      margin: 0 0 4px 0;
-      font-size: 1.1rem;
+    .toolbar h2 {
+      margin: 0;
+      font-size: 1.05rem;
       letter-spacing: 0.03em;
       text-transform: uppercase;
     }
 
-    .materials-panel small {
-      color: #555;
+    .tabs {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
+
+    .tab-btn {
+      width: 100%;
+      border: 1px solid rgba(0,0,0,0.12);
+      background: rgba(255,255,255,0.85);
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      text-align: left;
+      transition: transform 0.06s ease, background 0.15s ease;
+    }
+
+    .tab-btn:hover { background: rgba(255,255,255,1); }
+    .tab-btn:active { transform: translateY(1px); }
+    .tab-btn.active {
+      border-color: rgba(78,143,251,0.7);
+      box-shadow: 0 0 0 3px rgba(78,143,251,0.18);
+      background: rgba(255,255,255,1);
+    }
+
+    /* Materials panel (now inside toolbar, hidden unless Matériaux tab) */
+    .panel {
+      flex: 1;
+      overflow: auto;
+      border-top: 1px solid rgba(0,0,0,0.08);
+      padding-top: 12px;
+      display: none;
+    }
+    .panel.active { display: block; }
+
+    .panel small { color: #555; }
 
     .materials-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.9rem;
+      margin-top: 10px;
     }
-
     .materials-table th,
     .materials-table td {
-      padding: 4px 6px;
+      padding: 6px 6px;
       border-bottom: 1px solid #ddd;
       text-align: right;
       white-space: nowrap;
     }
-
     .materials-table th:first-child,
-    .materials-table td:first-child {
-      text-align: left;
-    }
+    .materials-table td:first-child { text-align: left; }
+    .materials-table th { font-weight: 700; }
 
-    .materials-table th {
-      font-weight: 600;
+    /* Placeholder view styling */
+    .placeholder {
+      height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      box-sizing: border-box;
     }
+    .placeholder-card {
+      width: min(720px, 92%);
+      background: rgba(255,255,255,0.75);
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 18px;
+      padding: 18px 18px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+      backdrop-filter: blur(6px);
+    }
+    .placeholder-card h3 { margin: 0 0 8px 0; }
+    .placeholder-card p { margin: 0; color: #333; opacity: 0.9; }
 
-    /* Optional: on very small screens, move the sleeve to the bottom */
-    @media (max-width: 700px) {
-      .materials-panel {
+    /* Small screens: toolbar becomes bottom bar */
+    @media (max-width: 820px) {
+      .app { flex-direction: column; }
+      .toolbar {
         width: 100%;
         height: auto;
-        bottom: 0;
-        top: auto;
         box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.25);
+        border-top: 1px solid rgba(0,0,0,0.08);
       }
+      .tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .panel { max-height: 220px; }
     }
   </style>
 </head>
-<body>
-  <!-- Full-viewport 3D model viewer -->
-  <model-viewer
-    src="./assets/models/assembly5.glb"
-    camera-controls
-    bounds="tight"
-    camera-target="auto"
-    camera-orbit="0deg 90deg 160%"
-    field-of-view="24deg"
-    min-field-of-view="18deg"
-    max-field-of-view="50deg"
-    environment-image="neutral"
-    exposure="0.8"
-    shadow-intensity="0.5"
-    shadow-softness="0.9"
-    touch-action="pan-y">
-  </model-viewer>
 
-  <!-- Right overlay sleeve -->
-  <aside class="materials-panel">
-    <h2>Matériaux</h2>
-    <small>Profile 4040 (mm) </small>
-    <table class="materials-table">
-      <thead>
-        <tr>
-          <th>Quantité</th>
-          <th>Mesure</th>
-          <th>Unité</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>4</td>
-          <td>2000</td>
-          <td>mm</td>
-        </tr>
-        <tr>
-          <td>16</td>
-          <td>1280</td>
-          <td>mm</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>1200</td>
-          <td>mm</td>
-        </tr>
-        <tr>
-          <td>10</td>
-          <td>630</td>
-          <td>mm</td>
-        </tr>
-      </tbody>
-    </table>
-  </aside>
+<body>
+  <div class="app">
+    <main class="main">
+      <!-- View: 3D Model -->
+      <section id="view-3d" class="view active">
+        <model-viewer
+          src="./assets/models/assembly5.glb"
+          camera-controls
+          bounds="tight"
+          camera-target="auto"
+          camera-orbit="0deg 90deg 160%"
+          field-of-view="24deg"
+          min-field-of-view="18deg"
+          max-field-of-view="50deg"
+          environment-image="neutral"
+          exposure="0.8"
+          shadow-intensity="0.5"
+          shadow-softness="0.9"
+          touch-action="pan-y">
+        </model-viewer>
+      </section>
+
+      <!-- View: placeholders (empty screens for now) -->
+      <section id="view-elec" class="view">
+        <div class="placeholder">
+          <div class="placeholder-card">
+            <h3>Équipements électrique</h3>
+            <p>Écran vide pour l’instant (à remplir plus tard).</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-prog" class="view">
+        <div class="placeholder">
+          <div class="placeholder-card">
+            <h3>Programme</h3>
+            <p>Écran vide pour l’instant (à remplir plus tard).</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-guide" class="view">
+        <div class="placeholder">
+          <div class="placeholder-card">
+            <h3>Guide d'installation</h3>
+            <p>Écran vide pour l’instant (à remplir plus tard).</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Right toolbar -->
+    <aside class="toolbar" aria-label="Barre d'outils">
+      <h2>Menu</h2>
+
+      <nav class="tabs" aria-label="Onglets">
+        <button class="tab-btn active" data-tab="3d">Modèle 3D</button>
+        <button class="tab-btn" data-tab="mat">Matériaux</button>
+        <button class="tab-btn" data-tab="elec">Équipements électrique</button>
+        <button class="tab-btn" data-tab="prog">Programme</button>
+        <button class="tab-btn" data-tab="guide">Guide d'installation</button>
+      </nav>
+
+      <!-- Materials content: hidden unless Matériaux tab -->
+      <section id="panel-mat" class="panel" aria-label="Matériaux">
+        <h2 style="margin:0 0 6px 0;">Matériaux</h2>
+        <small>Profile 4040 (mm)</small>
+
+        <table class="materials-table">
+          <thead>
+            <tr>
+              <th>Quantité</th>
+              <th>Mesure</th>
+              <th>Unité</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>4</td><td>2000</td><td>mm</td></tr>
+            <tr><td>16</td><td>1280</td><td>mm</td></tr>
+            <tr><td>2</td><td>1200</td><td>mm</td></tr>
+            <tr><td>10</td><td>630</td><td>mm</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </aside>
+  </div>
+
+  <script>
+    const tabButtons = Array.from(document.querySelectorAll(".tab-btn"));
+    const views = {
+      "3d": document.getElementById("view-3d"),
+      "elec": document.getElementById("view-elec"),
+      "prog": document.getElementById("view-prog"),
+      "guide": document.getElementById("view-guide"),
+    };
+    const materialsPanel = document.getElementById("panel-mat");
+
+    function setActive(tabKey) {
+      // Buttons
+      tabButtons.forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.tab === tabKey);
+      });
+
+      // Views (3d + placeholder pages)
+      Object.entries(views).forEach(([key, el]) => {
+        el.classList.toggle("active", key === tabKey);
+      });
+
+      // Materials panel visibility (only for "mat")
+      materialsPanel.classList.toggle("active", tabKey === "mat");
+
+      // If Matériaux selected, keep main area empty (no view active)
+      if (tabKey === "mat") {
+        Object.values(views).forEach(el => el.classList.remove("active"));
+      }
+    }
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => setActive(btn.dataset.tab));
+    });
+
+    // Default state
+    setActive("3d");
+  </script>
 </body>
 </html>
