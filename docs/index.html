@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Hydroponie Automation</title>
 
-  <!-- model-viewer script -->
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
   <style>
@@ -15,26 +14,15 @@
       margin: 0;
       background: linear-gradient(#4e8ffb 0%, #8fb6ff 45%, #ffffff 100%);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      position: relative;
       overflow: hidden;
     }
 
-    /* Main layout: content + right toolbar */
-    .app {
-      height: 100%;
-      display: flex;
-    }
-
-    .main {
-      flex: 1;
-      position: relative;
-      min-width: 0;
-    }
-
-    /* Full-viewport content areas */
+    /* Full-screen content areas (like your original) */
     .view {
       position: absolute;
       inset: 0;
-      display: none; /* hidden by default */
+      display: none;
     }
     .view.active { display: block; }
 
@@ -45,30 +33,30 @@
       background: transparent;
     }
 
-    /* Right toolbar */
-    .toolbar {
-      width: 280px;
+    /* LEFT toolbar overlay (shifted to left) */
+    .left-toolbar {
+      position: fixed;
+      top: 0;
+      left: 0;
       height: 100%;
+      width: 260px;
+
       background: rgba(255, 255, 255, 0.94);
-      box-shadow: -4px 0 12px rgba(0, 0, 0, 0.25);
+      padding: 16px 14px;
+      box-shadow: 4px 0 12px rgba(0, 0, 0, 0.25);
       box-sizing: border-box;
-      padding: 14px;
+
       display: flex;
       flex-direction: column;
       gap: 12px;
+      z-index: 10;
     }
 
-    .toolbar h2 {
-      margin: 0;
+    .left-toolbar h2 {
+      margin: 0 0 4px 0;
       font-size: 1.05rem;
       letter-spacing: 0.03em;
       text-transform: uppercase;
-    }
-
-    .tabs {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
     }
 
     .tab-btn {
@@ -78,154 +66,199 @@
       padding: 10px 12px;
       border-radius: 10px;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 650;
       text-align: left;
-      transition: transform 0.06s ease, background 0.15s ease;
     }
-
     .tab-btn:hover { background: rgba(255,255,255,1); }
-    .tab-btn:active { transform: translateY(1px); }
     .tab-btn.active {
       border-color: rgba(78,143,251,0.7);
       box-shadow: 0 0 0 3px rgba(78,143,251,0.18);
       background: rgba(255,255,255,1);
     }
 
-    /* Materials panel (now inside toolbar, hidden unless Matériaux tab) */
-    .panel {
-      flex: 1;
-      overflow: auto;
-      border-top: 1px solid rgba(0,0,0,0.08);
-      padding-top: 12px;
-      display: none;
-    }
-    .panel.active { display: block; }
+    /* RIGHT sub-panel overlay (only for Équipements électrique) */
+    .right-subpanel {
+      position: fixed;
+      top: 0;
+      left: 260px;   /* right beside the left toolbar */
+      height: 100%;
+      width: 320px;
 
-    .panel small { color: #555; }
+      background: rgba(255, 255, 255, 0.94);
+      padding: 16px 14px;
+      box-shadow: 4px 0 12px rgba(0, 0, 0, 0.18);
+      box-sizing: border-box;
+
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 9;
+    }
+    .right-subpanel.active { display: flex; }
+
+    .right-subpanel h3 {
+      margin: 0;
+      font-size: 1.0rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .subtab-btn {
+      width: 100%;
+      border: 1px solid rgba(0,0,0,0.12);
+      background: rgba(255,255,255,0.85);
+      padding: 9px 11px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 650;
+      text-align: left;
+    }
+    .subtab-btn:hover { background: rgba(255,255,255,1); }
+    .subtab-btn.active {
+      border-color: rgba(78,143,251,0.7);
+      box-shadow: 0 0 0 3px rgba(78,143,251,0.18);
+      background: rgba(255,255,255,1);
+    }
+
+    /* Materials full screen view */
+    .materials-wrap {
+      height: 100%;
+      box-sizing: border-box;
+      padding: 24px;
+      overflow: auto;
+
+      /* leave some space so text doesn't hide under overlays */
+      padding-left: 24px;
+    }
+
+    .card {
+      width: min(920px, 96%);
+      background: rgba(255,255,255,0.78);
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.10);
+      backdrop-filter: blur(6px);
+    }
+
+    .materials-header {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .materials-header h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .materials-header small { color: #555; }
 
     .materials-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.9rem;
-      margin-top: 10px;
+      font-size: 0.95rem;
     }
-    .materials-table th,
-    .materials-table td {
-      padding: 6px 6px;
-      border-bottom: 1px solid #ddd;
+    .materials-table th, .materials-table td {
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(0,0,0,0.10);
       text-align: right;
       white-space: nowrap;
     }
     .materials-table th:first-child,
     .materials-table td:first-child { text-align: left; }
-    .materials-table th { font-weight: 700; }
+    .materials-table thead th { font-weight: 800; }
+    .materials-table tbody tr:last-child td { border-bottom: none; }
 
-    /* Placeholder view styling */
-    .placeholder {
+    /* Electrical content view */
+    .elec-wrap {
+      height: 100%;
+      box-sizing: border-box;
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .elec-frame {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: rgba(255,255,255,0.5);
+    }
+
+    .empty-center {
       height: 100%;
       display: grid;
       place-items: center;
       padding: 24px;
       box-sizing: border-box;
     }
-    .placeholder-card {
-      width: min(720px, 92%);
-      background: rgba(255,255,255,0.75);
-      border: 1px solid rgba(0,0,0,0.12);
-      border-radius: 18px;
-      padding: 18px 18px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-      backdrop-filter: blur(6px);
-    }
-    .placeholder-card h3 { margin: 0 0 8px 0; }
-    .placeholder-card p { margin: 0; color: #333; opacity: 0.9; }
 
-    /* Small screens: toolbar becomes bottom bar */
+    .banner {
+      position: fixed;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      background: rgba(255,255,255,0.88);
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 14px;
+      padding: 10px 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+      display: none;
+      z-index: 50;
+    }
+    .banner.show { display: block; }
+
+    /* Mobile: overlays become top/bottom-ish */
     @media (max-width: 820px) {
-      .app { flex-direction: column; }
-      .toolbar {
+      .left-toolbar {
         width: 100%;
         height: auto;
-        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.25);
-        border-top: 1px solid rgba(0,0,0,0.08);
+        bottom: auto;
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.25);
       }
-      .tabs {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
+      .right-subpanel {
+        left: 0;
+        top: auto;
+        bottom: 0;
+        width: 100%;
+        height: auto;
+        max-height: 45%;
+        overflow: auto;
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.18);
       }
-      .panel { max-height: 220px; }
     }
   </style>
 </head>
 
 <body>
-  <div class="app">
-    <main class="main">
-      <!-- View: 3D Model -->
-      <section id="view-3d" class="view active">
-        <model-viewer
-          src="./assets/models/assembly5.glb"
-          camera-controls
-          bounds="tight"
-          camera-target="auto"
-          camera-orbit="0deg 90deg 160%"
-          field-of-view="24deg"
-          min-field-of-view="18deg"
-          max-field-of-view="50deg"
-          environment-image="neutral"
-          exposure="0.8"
-          shadow-intensity="0.5"
-          shadow-softness="0.9"
-          touch-action="pan-y">
-        </model-viewer>
-      </section>
+  <!-- Views -->
+  <section id="view-3d" class="view active">
+    <model-viewer
+      id="mv"
+      src="./assets/models/assembly5.glb"
+      camera-controls
+      bounds="tight"
+      camera-target="auto"
+      camera-orbit="0deg 90deg 160%"
+      field-of-view="24deg"
+      min-field-of-view="18deg"
+      max-field-of-view="50deg"
+      environment-image="neutral"
+      exposure="0.8"
+      shadow-intensity="0.5"
+      shadow-softness="0.9"
+      touch-action="pan-y">
+    </model-viewer>
+  </section>
 
-      <!-- View: placeholders (empty screens for now) -->
-      <section id="view-elec" class="view">
-        <div class="placeholder">
-          <div class="placeholder-card">
-            <h3>Équipements électrique</h3>
-            <p>Écran vide pour l’instant (à remplir plus tard).</p>
-          </div>
+  <section id="view-mat" class="view">
+    <div class="materials-wrap">
+      <div class="card">
+        <div class="materials-header">
+          <h3>Matériaux</h3>
+          <small>Profile 4040 (mm)</small>
         </div>
-      </section>
-
-      <section id="view-prog" class="view">
-        <div class="placeholder">
-          <div class="placeholder-card">
-            <h3>Programme</h3>
-            <p>Écran vide pour l’instant (à remplir plus tard).</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="view-guide" class="view">
-        <div class="placeholder">
-          <div class="placeholder-card">
-            <h3>Guide d'installation</h3>
-            <p>Écran vide pour l’instant (à remplir plus tard).</p>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- Right toolbar -->
-    <aside class="toolbar" aria-label="Barre d'outils">
-      <h2>Menu</h2>
-
-      <nav class="tabs" aria-label="Onglets">
-        <button class="tab-btn active" data-tab="3d">Modèle 3D</button>
-        <button class="tab-btn" data-tab="mat">Matériaux</button>
-        <button class="tab-btn" data-tab="elec">Équipements électrique</button>
-        <button class="tab-btn" data-tab="prog">Programme</button>
-        <button class="tab-btn" data-tab="guide">Guide d'installation</button>
-      </nav>
-
-      <!-- Materials content: hidden unless Matériaux tab -->
-      <section id="panel-mat" class="panel" aria-label="Matériaux">
-        <h2 style="margin:0 0 6px 0;">Matériaux</h2>
-        <small>Profile 4040 (mm)</small>
 
         <table class="materials-table">
           <thead>
@@ -242,46 +275,153 @@
             <tr><td>10</td><td>630</td><td>mm</td></tr>
           </tbody>
         </table>
-      </section>
-    </aside>
-  </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-elec" class="view">
+    <div class="elec-wrap">
+      <!-- We’ll swap this iframe src based on sub-tab -->
+      <iframe id="elecFrame" class="elec-frame" title="Document capteur"></iframe>
+      <div id="elecEmpty" class="empty-center" style="display:none;">
+        <div class="card" style="width:min(820px, 96%);">
+          <h3 id="elecTitle" style="margin:0 0 8px 0;">Équipements électrique</h3>
+          <p id="elecText" style="margin:0;">Sélectionne un sous-onglet à droite.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-prog" class="view">
+    <div class="empty-center">
+      <div class="card">
+        <h3 style="margin:0 0 8px 0;">Programme</h3>
+        <p style="margin:0;">Écran vide pour l’instant.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-guide" class="view">
+    <div class="empty-center">
+      <div class="card">
+        <h3 style="margin:0 0 8px 0;">Guide d'installation</h3>
+        <p style="margin:0;">Écran vide pour l’instant.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEFT toolbar -->
+  <aside class="left-toolbar">
+    <h2>Menu</h2>
+    <button class="tab-btn active" data-tab="3d">Modèle 3D</button>
+    <button class="tab-btn" data-tab="mat">Matériaux</button>
+    <button class="tab-btn" data-tab="elec">Équipements électrique</button>
+    <button class="tab-btn" data-tab="prog">Programme</button>
+    <button class="tab-btn" data-tab="guide">Guide d'installation</button>
+  </aside>
+
+  <!-- RIGHT subpanel for electrical -->
+  <aside id="rightPanel" class="right-subpanel" aria-label="Sous-onglets électrique">
+    <h3>Sous-onglets</h3>
+    <button class="subtab-btn active" data-subtab="do">DO sensor</button>
+    <button class="subtab-btn" data-subtab="ph">pH sensor</button>
+    <button class="subtab-btn" data-subtab="ec">Conductivity sensor</button>
+    <button class="subtab-btn" data-subtab="pump">Peristatic pump</button>
+  </aside>
+
+  <div id="banner" class="banner"></div>
 
   <script>
-    const tabButtons = Array.from(document.querySelectorAll(".tab-btn"));
+    const tabs = Array.from(document.querySelectorAll(".tab-btn"));
     const views = {
       "3d": document.getElementById("view-3d"),
+      "mat": document.getElementById("view-mat"),
       "elec": document.getElementById("view-elec"),
       "prog": document.getElementById("view-prog"),
       "guide": document.getElementById("view-guide"),
     };
-    const materialsPanel = document.getElementById("panel-mat");
 
-    function setActive(tabKey) {
-      // Buttons
-      tabButtons.forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.tab === tabKey);
-      });
+    const rightPanel = document.getElementById("rightPanel");
+    const banner = document.getElementById("banner");
 
-      // Views (3d + placeholder pages)
-      Object.entries(views).forEach(([key, el]) => {
-        el.classList.toggle("active", key === tabKey);
-      });
+    function showBanner(html) {
+      banner.innerHTML = html;
+      banner.classList.add("show");
+      clearTimeout(showBanner._t);
+      showBanner._t = setTimeout(() => banner.classList.remove("show"), 8000);
+    }
 
-      // Materials panel visibility (only for "mat")
-      materialsPanel.classList.toggle("active", tabKey === "mat");
+    function setTab(key) {
+      tabs.forEach(b => b.classList.toggle("active", b.dataset.tab === key));
+      Object.entries(views).forEach(([k, el]) => el.classList.toggle("active", k === key));
 
-      // If Matériaux selected, keep main area empty (no view active)
-      if (tabKey === "mat") {
-        Object.values(views).forEach(el => el.classList.remove("active"));
+      // Show electrical subpanel only on elec
+      rightPanel.classList.toggle("active", key === "elec");
+    }
+
+    tabs.forEach(btn => btn.addEventListener("click", () => setTab(btn.dataset.tab)));
+    setTab("3d");
+
+    // --- 3D model load error hints ---
+    const mv = document.getElementById("mv");
+    mv.addEventListener("error", () => {
+      showBanner(`
+        <strong>Modèle 3D non chargé.</strong><br>
+        Vérifie que le fichier est bien ici (GitHub Pages): <code>docs/assets/models/assembly5.glb</code><br>
+        et que ton HTML est servi depuis <code>/docs</code> (sinon le chemin relatif change).
+      `);
+    });
+
+    // --- Electrical subtabs -> loads documents ---
+    const subBtns = Array.from(document.querySelectorAll(".subtab-btn"));
+    const elecFrame = document.getElementById("elecFrame");
+    const elecEmpty = document.getElementById("elecEmpty");
+    const elecTitle = document.getElementById("elecTitle");
+    const elecText = document.getElementById("elecText");
+
+    // IMPORTANT: this must be a web path, not a Windows path:
+    const DOCS = {
+      do: "./assets/Surveyor-DO-datasheet.pdf", // file should be at docs/assets/Surveyor-DO-datasheet.pdf
+      ph: "",
+      ec: "",
+      pump: ""
+    };
+
+    function setSubtab(key) {
+      subBtns.forEach(b => b.classList.toggle("active", b.dataset.subtab === key));
+
+      const src = DOCS[key] || "";
+      if (src) {
+        elecFrame.src = src;
+        elecFrame.style.display = "block";
+        elecEmpty.style.display = "none";
+      } else {
+        elecFrame.removeAttribute("src");
+        elecFrame.style.display = "none";
+        elecEmpty.style.display = "grid";
+        elecTitle.textContent = ({
+          ph: "pH sensor",
+          ec: "Conductivity sensor",
+          pump: "Peristatic pump",
+        })[key] || "Équipements électrique";
+        elecText.textContent = "Écran vide pour l’instant.";
       }
     }
 
-    tabButtons.forEach(btn => {
-      btn.addEventListener("click", () => setActive(btn.dataset.tab));
+    // Detect PDF load failure (not perfect cross-origin, but catches obvious issues)
+    elecFrame.addEventListener("load", () => {
+      // ok
+    });
+    elecFrame.addEventListener("error", () => {
+      showBanner(`
+        <strong>PDF non chargé.</strong><br>
+        Tu ne peux pas utiliser un chemin Windows (<code>C:\\Users\\...</code>) dans un site web.<br>
+        Mets le PDF dans <code>docs/assets/</code> et utilise: <code>./assets/Surveyor-DO-datasheet.pdf</code>
+      `);
     });
 
-    // Default state
-    setActive("3d");
+    subBtns.forEach(btn => btn.addEventListener("click", () => setSubtab(btn.dataset.subtab)));
+    setSubtab("do");
   </script>
 </body>
 </html>
