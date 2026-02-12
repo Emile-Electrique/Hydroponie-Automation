@@ -22,32 +22,23 @@
     .view { position: absolute; inset: 0; display: none; }
     .view.active { display: block; }
 
-    model-viewer {
-      width: 100%;
-      height: 100%;
-      display: block;
-      background: transparent;
-    }
+    model-viewer { width: 100%; height: 100%; display: block; background: transparent; }
 
-    /* Toolbars (thinner ~ 1/3) */
+    /* Toolbars (thinner) */
     :root{
-      --w-main: 175px;  /* was 260 */
-      --w-sub: 215px;   /* was 320 */
+      --w-main: 175px;  /* ~1/3 thinner vs 260 */
+      --w-sub: 215px;   /* ~1/3 thinner vs 320 */
       --pad: 18px;
     }
 
     .left-toolbar {
-      position: fixed;
-      top: 0; left: 0;
-      height: 100%;
-      width: var(--w-main);
+      position: fixed; top: 0; left: 0;
+      height: 100%; width: var(--w-main);
       background: rgba(255, 255, 255, 0.94);
       padding: 14px 10px;
       box-shadow: 4px 0 12px rgba(0, 0, 0, 0.25);
       box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      display: flex; flex-direction: column; gap: 10px;
       z-index: 20;
     }
 
@@ -76,18 +67,14 @@
       background: rgba(255,255,255,1);
     }
 
-    /* Subpanels: L2 then L3 to its right */
+    /* Subpanels */
     .subpanel {
-      position: fixed;
-      top: 0;
-      height: 100%;
-      width: var(--w-sub);
-
+      position: fixed; top: 0;
+      height: 100%; width: var(--w-sub);
       background: rgba(255, 255, 255, 0.94);
       padding: 14px 10px;
       box-shadow: 4px 0 12px rgba(0, 0, 0, 0.18);
       box-sizing: border-box;
-
       display: none;
       flex-direction: column;
       gap: 10px;
@@ -105,7 +92,7 @@
       text-transform: uppercase;
     }
 
-    /* Content padding so it doesn't hide behind toolbars */
+    /* Content padding so content doesn't hide behind toolbars */
     .content-pad {
       height: 100%;
       box-sizing: border-box;
@@ -141,19 +128,14 @@
     }
     .materials-header small { color: #555; }
 
-    .materials-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.95rem;
-    }
+    .materials-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
     .materials-table th, .materials-table td {
       padding: 10px 10px;
       border-bottom: 1px solid rgba(0,0,0,0.10);
       text-align: right;
       white-space: nowrap;
     }
-    .materials-table th:first-child,
-    .materials-table td:first-child { text-align: left; }
+    .materials-table th:first-child, .materials-table td:first-child { text-align: left; }
     .materials-table thead th { font-weight: 800; }
     .materials-table tbody tr:last-child td { border-bottom: none; }
 
@@ -168,12 +150,7 @@
       overflow: hidden;
     }
 
-    iframe.doc {
-      width: 100%;
-      height: 100%;
-      border: 0;
-      display: none;
-    }
+    iframe.doc { width: 100%; height: 100%; border: 0; display: none; }
     iframe.doc.active { display: block; }
 
     img.doc-img {
@@ -184,6 +161,51 @@
       background: rgba(255,255,255,0.4);
     }
     img.doc-img.active { display: block; }
+
+    /* Code viewer */
+    .code-wrap {
+      height: 100%;
+      display: none;
+      flex-direction: column;
+    }
+    .code-wrap.active { display: flex; }
+
+    .code-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(0,0,0,0.10);
+      background: rgba(255,255,255,0.85);
+    }
+    .code-toolbar .title {
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+    .code-toolbar button {
+      border: 1px solid rgba(0,0,0,0.14);
+      background: rgba(255,255,255,0.95);
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .code-toolbar button:hover { background: white; }
+
+    pre.code {
+      margin: 0;
+      padding: 14px 14px 18px 14px;
+      overflow: auto;
+      height: 100%;
+      box-sizing: border-box;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92rem;
+      line-height: 1.35;
+      background: rgba(10, 16, 28, 0.92);
+      color: #e9eefc;
+      white-space: pre;
+    }
 
     .empty-center {
       height: 100%;
@@ -208,15 +230,13 @@
     }
     .banner.show { display: block; }
 
-    /* Mobile: stack */
+    /* Mobile */
     @media (max-width: 980px) {
       .pad-1, .pad-2, .pad-3 { padding-left: var(--pad); padding-top: 190px; }
       .left-toolbar { width: 100%; height: auto; }
       #panel-l2, #panel-l3 {
-        left: 0;
-        top: 100px;
-        width: 100%;
-        height: auto;
+        left: 0; top: 100px;
+        width: 100%; height: auto;
         max-height: 42%;
         overflow: auto;
       }
@@ -276,12 +296,26 @@
   <section id="view-equip" class="view">
     <div id="equipPad" class="content-pad pad-1">
       <div class="doc-surface">
+        <!-- PDF / Image -->
         <iframe id="docFrame" class="doc" title="Document"></iframe>
         <img id="imgFrame" class="doc-img" alt="Wiring image" />
+
+        <!-- Code viewer -->
+        <div id="codeWrap" class="code-wrap">
+          <div class="code-toolbar">
+            <div class="title" id="codeTitle">Demo code</div>
+            <button id="copyBtn" type="button">Copier</button>
+          </div>
+          <pre id="codeBlock" class="code"></pre>
+        </div>
+
+        <!-- Empty -->
         <div id="equipEmpty" class="empty-center">
           <div class="card" style="width:min(820px, 96%);">
             <h3 id="equipTitle" style="margin:0 0 8px 0;">Équipements</h3>
-            <p id="equipText" style="margin:0;">Sélectionne un équipement (panneau 2), puis Wiring/Demo/Datasheet (panneau 3).</p>
+            <p id="equipText" style="margin:0;">
+              Sélectionne un équipement (panneau 2), puis Wiring/Demo/Datasheet (panneau 3).
+            </p>
           </div>
         </div>
       </div>
@@ -320,7 +354,7 @@
     <button class="tab-btn" data-tab="guide">Guide d'installation</button>
   </aside>
 
-  <!-- L2 toolbar: equipment list (stays visible while in Équipements) -->
+  <!-- L2 -->
   <aside id="panel-l2" class="subpanel" aria-label="Équipements (niveau 2)">
     <h3>Équipements</h3>
     <button class="subtab-btn" data-equip="do">DO sensor</button>
@@ -329,7 +363,7 @@
     <button class="subtab-btn" data-equip="pump">Peristatic pump</button>
   </aside>
 
-  <!-- L3 toolbar: item details (same for all sensors/pump) -->
+  <!-- L3 -->
   <aside id="panel-l3" class="subpanel" aria-label="Détails (niveau 3)">
     <h3 id="l3Title">Détails</h3>
     <button class="subtab-btn" data-detail="wiring">Wiring</button>
@@ -340,6 +374,13 @@
   <div id="banner" class="banner"></div>
 
   <script>
+    // -------- paths for your DO sensor assets (in /docs/assets/Equipements/DO_Sensor/) --------
+    // NOTE: spaces must be URL-encoded (%20)
+    const DO_BASE = "./assets/Equipements/DO_Sensor/";
+    const DO_WIRING_IMG = DO_BASE + "DO%20Sensor%20Atlas%20Scientific.PNG";
+    const DO_DATASHEET_PDF = DO_BASE + "Surveyor-DO-datasheet.pdf";
+    const DO_DEMO_INO = DO_BASE + "Sketch_Demo_DO_Sensor.ino";
+
     // ---------- Helpers ----------
     const banner = document.getElementById("banner");
     function showBanner(html) {
@@ -347,6 +388,16 @@
       banner.classList.add("show");
       clearTimeout(showBanner._t);
       showBanner._t = setTimeout(() => banner.classList.remove("show"), 6500);
+    }
+
+    async function loadCode(path) {
+      try {
+        const res = await fetch(path);
+        if (!res.ok) throw new Error("Not found");
+        return await res.text();
+      } catch {
+        return "// Could not load file:\n// " + path;
+      }
     }
 
     // ---------- Tabs ----------
@@ -369,14 +420,14 @@
 
       if (key === "equip") {
         panelL2.classList.add("active");
-        // L3 only appears after selecting an equipment
-        // Keep padding at least for L2; if L3 active, padding becomes pad-3
+        // L3 appears after selecting an equipment; keep padding consistent
         equipPad.classList.remove("pad-1","pad-2","pad-3");
-        equipPad.classList.add(panelL3.classList.contains("active") ? "pad-3" : "pad-2");
+        const l2 = panelL2.classList.contains("active");
+        const l3 = panelL3.classList.contains("active");
+        equipPad.classList.add(l3 ? "pad-3" : (l2 ? "pad-2" : "pad-1"));
       } else {
         panelL2.classList.remove("active");
         panelL3.classList.remove("active");
-        // reset padding if leaving
         equipPad.classList.remove("pad-1","pad-2","pad-3");
         equipPad.classList.add("pad-1");
       }
@@ -394,52 +445,55 @@
     // ---------- Équipements content ----------
     const docFrame = document.getElementById("docFrame");
     const imgFrame = document.getElementById("imgFrame");
+    const codeWrap = document.getElementById("codeWrap");
+    const codeBlock = document.getElementById("codeBlock");
+    const codeTitle = document.getElementById("codeTitle");
+    const copyBtn = document.getElementById("copyBtn");
+
     const equipEmpty = document.getElementById("equipEmpty");
     const equipTitle = document.getElementById("equipTitle");
     const equipText = document.getElementById("equipText");
     const l3Title = document.getElementById("l3Title");
 
-    let currentEquip = null; // "do" | "ph" | "ec" | "pump"
+    let currentEquip = null; // do | ph | ec | pump
 
-    function clearContent() {
+    function hideAllContent() {
       docFrame.classList.remove("active");
       imgFrame.classList.remove("active");
+      codeWrap.classList.remove("active");
       equipEmpty.style.display = "grid";
       docFrame.removeAttribute("src");
       imgFrame.removeAttribute("src");
+      codeBlock.textContent = "";
     }
 
     function showEmpty(title, text) {
-      clearContent();
+      hideAllContent();
       equipTitle.textContent = title;
       equipText.textContent = text;
     }
 
-    // Map per equipment -> where to load datasheet/wiring (only DO has both right now)
+    // Only DO is wired to real assets right now. Add others when you have files.
     const EQUIP_ASSETS = {
       do: {
         label: "DO sensor",
-        wiringImg: "./assets/DO%20Sensor%20Atlas%20Scientific.PNG",
-        datasheetPdf: "./assets/Surveyor-DO-datasheet.pdf",
+        wiringImg: DO_WIRING_IMG,
+        datasheetPdf: DO_DATASHEET_PDF,
+        demoFile: DO_DEMO_INO,
       },
-      ph: {
-        label: "pH sensor",
-        wiringImg: "",       // add later
-        datasheetPdf: "",    // add later
-      },
-      ec: {
-        label: "Conductivity sensor",
-        wiringImg: "",       // add later
-        datasheetPdf: "",    // add later
-      },
-      pump: {
-        label: "Peristatic pump",
-        wiringImg: "",       // add later
-        datasheetPdf: "",    // add later
-      },
+      ph: { label: "pH sensor", wiringImg: "", datasheetPdf: "", demoFile: "" },
+      ec: { label: "Conductivity sensor", wiringImg: "", datasheetPdf: "", demoFile: "" },
+      pump: { label: "Peristatic pump", wiringImg: "", datasheetPdf: "", demoFile: "" },
     };
 
-    function openDetail(detailKey) {
+    function collapseL2L3() {
+      panelL2.classList.remove("active");
+      panelL3.classList.remove("active");
+      equipPad.classList.remove("pad-1","pad-2","pad-3");
+      equipPad.classList.add("pad-1"); // only main toolbar remains
+    }
+
+    async function openDetail(detailKey) {
       if (!currentEquip) {
         showEmpty("Équipements", "Sélectionne d’abord un équipement.");
         return;
@@ -449,40 +503,59 @@
       equipEmpty.style.display = "none";
       docFrame.classList.remove("active");
       imgFrame.classList.remove("active");
+      codeWrap.classList.remove("active");
 
       if (detailKey === "datasheet") {
         if (cfg.datasheetPdf) {
           docFrame.src = cfg.datasheetPdf;
           docFrame.classList.add("active");
         } else {
-          showEmpty(cfg.label + " — Datasheet", "Écran vide pour l’instant (ajoute le PDF dans docs/assets et mets le chemin).");
+          showEmpty(cfg.label + " — Datasheet", "Écran vide pour l’instant (ajoute le PDF dans docs/assets).");
         }
       } else if (detailKey === "wiring") {
         if (cfg.wiringImg) {
           imgFrame.src = cfg.wiringImg;
           imgFrame.classList.add("active");
         } else {
-          showEmpty(cfg.label + " — Wiring", "Écran vide pour l’instant (ajoute l’image et mets le chemin).");
+          showEmpty(cfg.label + " — Wiring", "Écran vide pour l’instant (ajoute l’image dans docs/assets).");
         }
-      } else {
-        showEmpty(cfg.label + " — Demo code", "Écran vide pour l’instant.");
+      } else { // demo
+        if (cfg.demoFile) {
+          codeTitle.textContent = cfg.label + " — Demo code";
+          codeWrap.classList.add("active");
+          codeBlock.textContent = "// Loading...\n";
+          const code = await loadCode(cfg.demoFile);
+          codeBlock.textContent = code;
+        } else {
+          showEmpty(cfg.label + " — Demo code", "Aucun fichier .ino défini.");
+        }
       }
+
+      // Collapse both L2 and L3 after selecting a L3 element
+      collapseL2L3();
     }
 
-    // ---------- L2: select equipment (shows L3 to the right, not replacing) ----------
+    // Copy button
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(codeBlock.textContent);
+        showBanner("<strong>Copié !</strong> Le code est dans ton presse-papiers.");
+      } catch {
+        showBanner("<strong>Copie bloquée.</strong> Clique dans le code, Ctrl+A puis Ctrl+C.");
+      }
+    });
+
+    // ---------- L2: select equipment (shows L3 beside it) ----------
     const l2Btns = Array.from(document.querySelectorAll("[data-equip]"));
     l2Btns.forEach(btn => {
       btn.addEventListener("click", () => {
         currentEquip = btn.dataset.equip;
-
-        // Visual active
         l2Btns.forEach(b => b.classList.toggle("active", b === btn));
 
-        // Show L3 beside L2
+        panelL2.classList.add("active");
         panelL3.classList.add("active");
         l3Title.textContent = EQUIP_ASSETS[currentEquip].label;
 
-        // Update padding to allow 2 subpanels
         equipPad.classList.remove("pad-1","pad-2","pad-3");
         equipPad.classList.add("pad-3");
 
@@ -490,7 +563,7 @@
       });
     });
 
-    // ---------- L3: details ----------
+    // ---------- L3: details (collapses L2+L3 on selection) ----------
     const l3Btns = Array.from(document.querySelectorAll("[data-detail]"));
     l3Btns.forEach(btn => {
       btn.addEventListener("click", () => {
@@ -501,14 +574,14 @@
 
     // Load errors
     imgFrame.addEventListener("error", () => {
-      showBanner(`<strong>Image non chargée.</strong> Vérifie le nom exact dans <code>docs/assets/</code> (espaces/majuscules).`);
+      showBanner(`<strong>Image non chargée.</strong> Vérifie le nom exact dans <code>docs/assets/Equipements/DO_Sensor/</code> (espaces/majuscules).`);
     });
     docFrame.addEventListener("error", () => {
-      showBanner(`<strong>PDF non chargé.</strong> Vérifie que le fichier est dans <code>docs/assets/</code> et que le chemin est bon.`);
+      showBanner(`<strong>PDF non chargé.</strong> Vérifie que le fichier est dans <code>docs/assets/Equipements/DO_Sensor/</code> et que le chemin est bon.`);
     });
 
     // Default
-    clearContent();
+    hideAllContent();
     showEmpty("Équipements", "Sélectionne un équipement (panneau 2), puis un détail (panneau 3).");
   </script>
 </body>
