@@ -351,24 +351,24 @@
     <button class="tab-btn" data-tab="mat">Matériaux</button>
     <button class="tab-btn" data-tab="equip">Équipements</button>
     <button class="tab-btn" data-tab="prog">Programme</button>
-    <button class="tab-btn" data-tab="guide">Guide d'installation</button>
+    <button class="tab-btn" data-tab="guide">Installation</button>
   </aside>
 
   <!-- L2 -->
   <aside id="panel-l2" class="subpanel" aria-label="Équipements (niveau 2)">
     <h3>Équipements</h3>
-    <button class="subtab-btn" data-equip="do">DO sensor</button>
-    <button class="subtab-btn" data-equip="ph">pH sensor</button>
-    <button class="subtab-btn" data-equip="ec">Conductivity sensor</button>
-    <button class="subtab-btn" data-equip="pump">Peristatic pump</button>
+    <button class="subtab-btn" data-equip="do">Capteur Oxygène</button>
+    <button class="subtab-btn" data-equip="ph">Capteur pH</button>
+    <button class="subtab-btn" data-equip="ec">Conductivité</button>
+    <button class="subtab-btn" data-equip="pump">Pompes</button>
   </aside>
 
   <!-- L3 -->
   <aside id="panel-l3" class="subpanel" aria-label="Détails (niveau 3)">
     <h3 id="l3Title">Détails</h3>
-    <button class="subtab-btn" data-detail="wiring">Wiring</button>
-    <button class="subtab-btn" data-detail="demo">Demo code</button>
-    <button class="subtab-btn" data-detail="datasheet">Datasheet</button>
+    <button class="subtab-btn" data-detail="wiring">Branchements</button>
+    <button class="subtab-btn" data-detail="demo">Code Demo</button>
+    <button class="subtab-btn" data-detail="datasheet">Fiche Technique</button>
   </aside>
 
   <div id="banner" class="banner"></div>
@@ -379,7 +379,9 @@
     const DO_BASE = "./assets/Equipements/DO_Sensor/";
     const DO_WIRING_IMG = DO_BASE + "DO%20Sensor%20Atlas%20Scientific.PNG";
     const DO_DATASHEET_PDF = DO_BASE + "Surveyor-DO-datasheet.pdf";
-    const DO_DEMO_INO = DO_BASE + "Sketch_Demo_DO_Sensor/Sketch_Demo_DO_Sensor.ino";
+    const DO_DEMO_INO = location.origin +
+  location.pathname.split("/docs/")[0] +
+  "/docs/assets/Equipements/DO_Sensor/Sketch_Demo_DO_Sensor/Sketch_Demo_DO_Sensor.ino";
 
     // ---------- Helpers ----------
     const banner = document.getElementById("banner");
